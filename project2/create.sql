@@ -8,8 +8,8 @@ CREATE TABLE Location (
       );
 CREATE TABLE User (
         ID varchar(200),
-        RatingSeller INTEGER,
         RatingBidder INTEGER,
+        RatingSeller INTEGER,
         primary key (ID)
       );
 CREATE TABLE Items (
@@ -60,6 +60,5 @@ Create TABLE AssociateCategory(
         FOREIGN KEY (ItemID)
           REFERENCES Items(ID)
           ON DELETE CASCADE,
-        Category varchar(200),
-        primary key (ItemID)
+        Category varchar(200)
       );
