@@ -209,7 +209,6 @@ class MyParser {
                 parseCategory(item);
                 parseBids(item);
             }
-            writeUserTable();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -377,6 +376,8 @@ class MyParser {
                 File currentFile = new File(args[i]);
                 processFile(currentFile);
             }
+            /* Write to user table now to avoid duplicates. */
+            writeUserTable();
 
             /* Close the writers. */
             itemWriter.close();
