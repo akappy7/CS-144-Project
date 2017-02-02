@@ -46,12 +46,12 @@ class MyParser {
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
 
-    private static final String itemFile = "item.csv";
-    private static final String locationFile = "location.csv";
-    private static final String bidsFile = "bids.csv";
-    private static final String bidderFile = "bidder.csv";
-    private static final String categoryFile = "category.csv";
-    private static final String userFile = "user.csv";
+    private static final String itemFile = "item.dat";
+    private static final String locationFile = "location.dat";
+    private static final String bidsFile = "bids.dat";
+    private static final String bidderFile = "bidder.dat";
+    private static final String categoryFile = "category.dat";
+    private static final String userFile = "user.dat";
 
     private static BufferedWriter itemWriter;
     private static BufferedWriter locationWriter;
@@ -64,6 +64,7 @@ class MyParser {
     private static HashMap<String, String[]> userMap = new HashMap<>();
     private static HashMap<String, Integer> locationMap = new HashMap<>();
     private static Integer locationID = 0;
+    private static Integer num = 0;
     
     static final String[] typeName = {
 	"none",
@@ -260,6 +261,8 @@ class MyParser {
             String categoryName = getElementText(category);
             writeRow(categoryWriter, itemID, categoryName);
         }
+        if (categories.length == 4)
+            num++;
     }
 
     private static void parseBids (Element item) throws IOException {
@@ -378,6 +381,7 @@ class MyParser {
             }
             /* Write to user table now to avoid duplicates. */
             writeUserTable();
+            System.out.println(num);
 
             /* Close the writers. */
             itemWriter.close();
