@@ -2,7 +2,7 @@
 select count(*) from User;
 
 #------number of items in New York-------
-select count(*) from Items where LocationID IN ( select ID from Location where Location="New York");
+select count(*) from Items where LocationID IN ( select ID from Location where Location= binary "New York");
 
 #-------Find the number of auctions belonging to exactly four categories.-----
 select count(*) from (select * from AssociateCategory group by ItemID having COUNT(*)=4) t;
