@@ -18,4 +18,4 @@ select count(*) from User where RatingSeller > 1000;
 SELECT count(distinct a.Seller) from Items as a inner join AssociateBidder as b ON a.Seller = b.UserID;
 
 #------Find the number of categories that include at least one item with a bid of more than $100.----
-select distinct(Category) from AssociateCategory where ItemID IN ( select ID from Items where NumberBids > 0 and Currently>100);
+select count(distinct(Category)) from AssociateCategory where ItemID IN ( select ID from Items where NumberBids > 0 and Currently>100);
