@@ -1,8 +1,8 @@
 CREATE TABLE Location (
         ID INTEGER,
-        Longitude INTEGER,
-        Latitude INTEGER,
-        Country varchar(200),
+        Longitude DOUBLE(15,10),
+        Latitude DOUBLE(15,10),
+        Country varchar(100),
         Location varchar(200),
         primary key (ID)
       );
