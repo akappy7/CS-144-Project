@@ -60,5 +60,6 @@ Create TABLE AssociateCategory(
         FOREIGN KEY (ItemID)
           REFERENCES Items(ID)
           ON DELETE CASCADE,
-        Category varchar(200)
+        Category varchar(200),
+        primary key (ItemID, Category)
       );
