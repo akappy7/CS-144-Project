@@ -5,7 +5,6 @@ select count(*) from User;
 select count(*) from Items where LocationID IN ( select ID from Location where Location="New York");
 
 #-------Find the number of auctions belonging to exactly four categories.-----
-select count(*) from AssociateCategory group by ItemID having COUNT(*)=4;
 select count(*) from (select * from AssociateCategory group by ItemID having COUNT(*)=4) t;
 
 #-------Find the ID(s) of current (unsold) auction(s) with the highest bid
