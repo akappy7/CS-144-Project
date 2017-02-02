@@ -17,3 +17,4 @@ ant run-all
 mysql CS144 < load.sql
 
 # Remove all temporary files
+rm *.csv

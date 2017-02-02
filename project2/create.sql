@@ -7,36 +7,36 @@ CREATE TABLE Location (
         primary key (ID)
       );
 CREATE TABLE User (
-        ID INTEGER,
+        ID varchar(200),
         RatingSeller INTEGER,
         RatingBidder INTEGER,
         primary key (ID)
       );
 CREATE TABLE Items (
         ID INTEGER,
-        Currently INTEGER,
-        BuyPrice INTEGER,
-        FirstBid INTEGER,
+        Currently DOUBLE(15,2),
+        BuyPrice DOUBLE(15,2),
+        FirstBid DOUBLE(15,2),
         NumberBids INTEGER,
         LocationID INTEGER,
         FOREIGN KEY (LocationID)
           REFERENCES Location(ID)
           ON DELETE CASCADE,
-        Started TIMESTAMP,
-        Ends TIMESTAMP,
-        Seller INTEGER,
+        Started DATETIME,
+        Ends DATETIME,
+        Seller varchar(200),
         FOREIGN KEY (Seller)
           REFERENCES User(ID)
           ON DELETE CASCADE,
-        Description varchar(4000),
+        Description varchar(1000),
         primary key (ID)
       );
 CREATE TABLE Bids (
-        UserID INTEGER,
+        UserID varchar(200),
         FOREIGN KEY (UserID)
           REFERENCES User(ID)
           ON DELETE CASCADE,
-        Time TIMESTAMP,
+        Time DATETIME,
         ItemID INTEGER,
         FOREIGN KEY (ItemID)
           REFERENCES Items(ID)
@@ -45,7 +45,7 @@ CREATE TABLE Bids (
         primary key (Time, UserID, ItemID)
      );
 Create TABLE AssociateBidder(
-        UserID INTEGER,
+        UserID varchar(200),
         FOREIGN KEY (UserID)
           REFERENCES User(ID)
           ON DELETE CASCADE,
