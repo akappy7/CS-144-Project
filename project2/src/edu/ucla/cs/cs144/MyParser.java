@@ -64,7 +64,6 @@ class MyParser {
     private static HashMap<String, String[]> userMap = new HashMap<>();
     private static HashMap<String, Integer> locationMap = new HashMap<>();
     private static Integer locationID = 0;
-    private static Integer num = 0;
     
     static final String[] typeName = {
 	"none",
@@ -261,8 +260,6 @@ class MyParser {
             String categoryName = getElementText(category);
             writeRow(categoryWriter, itemID, categoryName);
         }
-        if (categories.length == 4)
-            num++;
     }
 
     private static void parseBids (Element item) throws IOException {
@@ -381,7 +378,6 @@ class MyParser {
             }
             /* Write to user table now to avoid duplicates. */
             writeUserTable();
-            System.out.println(num);
 
             /* Close the writers. */
             itemWriter.close();
