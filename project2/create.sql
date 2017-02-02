@@ -22,13 +22,13 @@ CREATE TABLE Items (
         FOREIGN KEY (LocationID)
           REFERENCES Location(ID)
           ON DELETE CASCADE,
-        Started DATETIME,
-        Ends DATETIME,
+        Started TIMESTAMP,
+        Ends TIMESTAMP,
         Seller INTEGER,
         FOREIGN KEY (Seller)
           REFERENCES User(ID)
           ON DELETE CASCADE,
-        Description varchar(500),
+        Description varchar(4000),
         primary key (ID)
       );
 CREATE TABLE Bids (
@@ -36,7 +36,7 @@ CREATE TABLE Bids (
         FOREIGN KEY (UserID)
           REFERENCES User(ID)
           ON DELETE CASCADE,
-        Time DATETIME,
+        Time TIMESTAMP,
         ItemID INTEGER,
         FOREIGN KEY (ItemID)
           REFERENCES Items(ID)

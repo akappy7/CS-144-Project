@@ -45,6 +45,25 @@ class MyParser {
     
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
+
+    private static final String itemFile = "item.csv";
+    private static final String locationFile = "location.csv";
+    private static final String bidsFile = "bids.csv";
+    private static final String bidderFile = "bidder.csv";
+    private static final String categoryFile = "category.csv";
+    private static final String userFile = "user.csv";
+
+    private static BufferedWriter itemWriter;
+    private static BufferedWriter locationWriter;
+    private static BufferedWriter bidsWriter;
+    private static BufferedWriter bidderWriter;
+    private static BufferedWriter categoryWriter;
+    private static BufferedWriter userWriter;
+
+    private static HashSet<String> bidderSet = new HashSet<>();
+    private static HashMap<String, String[]> userMap = new HashMap<>();
+    private static HashMap<String, Integer> locationMap = new HashMap<>();
+    private static Integer locationID = 0;
     
     static final String[] typeName = {
 	"none",
@@ -182,11 +201,143 @@ class MyParser {
         
         /* Fill in code here (you will probably need to write auxiliary
             methods). */
-        
+        Element[] items = getElementsByTagNameNR(doc.getDocumentElement(), "Item");
+
+        try {
+            for (Element item : items) {
+                parseItem(item);
+                parseCategory(item);
+                parseBids(item);
+            }
+            writeUserTable();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         
         
         /**************************************************************/
         
+    }
+
+    private static void parseItem (Element item) throws IOException {
+        String itemID = item.getAttribute("ItemID");
+        String currently = strip(getElementTextByTagNameNR(item, "Currently"));
+        String buyPrice = strip(getElementTextByTagNameNR(item, "Buy_Price"));
+        String firstBid = strip(getElementTextByTagNameNR(item, "First_Bid"));
+        String numBids = getElementTextByTagNameNR(item, "Number_of_Bids");
+
+        Element location = getElementByTagNameNR(item, "Location");
+        String locationText = getElementText(location);
+        String latitude = location.getAttribute("Latitude");
+        String longitude = location.getAttribute("Longitude");
+        String country = getElementTextByTagNameNR(item, "Country");
+        String locationID = getLocationID(longitude, latitude, country, locationText).toString();
+
+        String started = formatDate(getElementTextByTagNameNR(item, "Started"));
+        String ends = formatDate(getElementTextByTagNameNR(item, "Ends"));
+
+        Element seller = getElementByTagNameNR(item, "Seller");
+        String userID = seller.getAttribute("UserID");
+        String rating = seller.getAttribute("Rating");
+        String[] newRatings;
+        if (userMap.containsKey(userID)) {
+            String[] oldRatings = userMap.get(userID);
+            newRatings = new String[] {oldRatings[0], rating};
+        } else {
+            newRatings = new String[] {"", rating};
+        }
+        userMap.put(userID, newRatings);
+
+        String description = getElementTextByTagNameNR(item, "Description");
+        if (description.length() > 4000)
+            description = description.substring(0, 4000);
+        writeRow(itemWriter, itemID, currently, buyPrice, firstBid, numBids, locationID, started, ends, userID, description);
+    }
+
+    private static void parseCategory (Element item) throws IOException {
+        Element[] categories = getElementsByTagNameNR(item, "Category");
+        String itemID = item.getAttribute("ItemID");
+        for (Element category: categories) {
+            String categoryName = getElementText(category);
+            writeRow(categoryWriter, itemID, categoryName);
+        }
+    }
+
+    private static void parseBids (Element item) throws IOException {
+        Element[] bids = getElementsByTagNameNR(getElementByTagNameNR(item, "Bids"), "Bid");
+        String itemID = item.getAttribute("ItemID");
+        for (Element bid: bids) {
+            Element bidder = getElementByTagNameNR(bid, "Bidder");
+            String userID = bidder.getAttribute("UserID");
+            String rating = bidder.getAttribute("Rating");
+            String[] newRatings;
+            if (userMap.containsKey(userID)) {
+                String[] oldRatings = userMap.get(userID);
+                newRatings = new String[] {rating, oldRatings[1]};
+            } else {
+                newRatings = new String[] {rating, ""};
+            }
+            userMap.put(userID, newRatings);
+
+            String location = getElementTextByTagNameNR(bidder, "Location");
+            String country = getElementTextByTagNameNR(bidder, "Country");
+            String locationID = getLocationID("", "", country, location).toString();
+
+            String bidderKey = userID + locationID;
+            if (!bidderSet.contains(bidderKey)) {
+                writeRow(bidderWriter, userID, locationID);
+                bidderSet.add(bidderKey);
+            }
+
+            String time = formatDate(getElementTextByTagNameNR(bid, "Time"));
+            String amount = strip(getElementTextByTagNameNR(bid, "Amount"));
+            writeRow(bidsWriter, userID, time, itemID, amount);
+        }
+    }
+
+    private static Integer getLocationID (String longitude, String latitude, String country, String location) throws IOException {
+        String locationKey = longitude + latitude + country + location;
+        if (locationMap.containsKey(locationKey))
+            return locationMap.get(locationKey);
+        else {
+            locationID++;
+            locationMap.put(locationKey, locationID);
+            writeRow(locationWriter, locationID.toString(), longitude, latitude, country, location);
+            return locationID;
+        }
+    }
+
+    private static String formatDate (String dateString) {
+        SimpleDateFormat mdy = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+        SimpleDateFormat ymd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = mdy.parse(dateString);
+            return ymd.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "Ill Formatted Timestamp.";
+        }
+    }
+
+    private static void writeUserTable() throws IOException {
+        for (Map.Entry<String, String[]> entry : userMap.entrySet())
+        {
+            String userID = entry.getKey();
+            String ratingBidder = entry.getValue()[0];
+            String ratingSeller = entry.getValue()[1];
+            writeRow(userWriter, userID, ratingBidder, ratingSeller);
+        }
+    }
+
+    private static void writeRow (BufferedWriter writer, String... strings) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < strings.length - 1; i++) {
+            stringBuilder.append(strings[i]);
+            stringBuilder.append(columnSeparator);
+        }
+        stringBuilder.append(strings[strings.length - 1]);
+        writer.write(stringBuilder.toString());
+        writer.newLine();
     }
     
     public static void main (String[] args) {
@@ -211,11 +362,32 @@ class MyParser {
             System.out.println("parser was unable to be configured");
             System.exit(2);
         }
+
+        try {
+            /* Initialize writers. */
+            itemWriter = new BufferedWriter(new FileWriter(itemFile, true));
+            locationWriter = new BufferedWriter(new FileWriter(locationFile, true));
+            bidsWriter = new BufferedWriter(new FileWriter(bidsFile, true));
+            bidderWriter = new BufferedWriter(new FileWriter(bidderFile, true));
+            categoryWriter = new BufferedWriter(new FileWriter(categoryFile, true));
+            userWriter = new BufferedWriter(new FileWriter(userFile, true));
         
-        /* Process all files listed on command line. */
-        for (int i = 0; i < args.length; i++) {
-            File currentFile = new File(args[i]);
-            processFile(currentFile);
+            /* Process all files listed on command line. */
+            for (int i = 0; i < args.length; i++) {
+                File currentFile = new File(args[i]);
+                processFile(currentFile);
+            }
+
+            /* Close the writers. */
+            itemWriter.close();
+            locationWriter.close();
+            bidsWriter.close();
+            bidderWriter.close();
+            categoryWriter.close();
+            userWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
