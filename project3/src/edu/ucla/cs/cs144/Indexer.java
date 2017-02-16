@@ -68,8 +68,7 @@ private IndexWriter indexWriter = null;
       doc.add(new StringField("ItemID", itemID, Field.Store.YES));
       doc.add(new StringField("ItemName", itemName, Field.Store.YES));
       String searchable = itemID + "," + itemName + "," + itemDescription + "," + itemCategories;
-      doc.add(new StringField("search", searchable, Field.Store.NO));
-
+      doc.add(new TextField("search", searchable, Field.Store.NO));
       tempWriter.addDocument(doc);
     }
 
