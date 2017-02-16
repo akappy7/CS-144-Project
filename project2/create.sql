@@ -14,6 +14,7 @@ CREATE TABLE User (
       );
 CREATE TABLE Items (
         ID INTEGER,
+	Name varchar(200), 
         Currently DOUBLE(15,2),
         BuyPrice DOUBLE(15,2),
         FirstBid DOUBLE(15,2),

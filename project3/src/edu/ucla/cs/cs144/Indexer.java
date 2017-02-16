@@ -22,12 +22,57 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Indexer {
-    
+
+private IndexWriter indexWriter = null;
+
+
+  public IndexWriter getIndexWriter(){
+    if (indexWriter == null){
+      try{
+        initIndexWrite();
+      } catch (IOException ex) {
+        System.out.println(ex);
+      }
+    } //
+    return indexWriter;
+  }
+  public void initIndexWrite() throws IOException{
+      Directory indexDir = FSDirectory.open(new File("/var/lib/lucene/index1"));
+      IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, new StandardAnalyzer());
+      config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+      indexWriter = new IndexWriter(indexDir, config);
+    }
+  //close indexWriter
+  public void finishIndexWriter() throws IOException {
+    if (indexWriter != null) {
+            indexWriter.close();
+        }
+  }
     /** Creates a new instance of Indexer */
     public Indexer() {
     }
- 
+
+    public void createIndex(String itemID, String itemName, String itemDescription, String itemCategories) throws IOException{
+      //parameters: items values to create new index
+
+      Document doc = new Document();
+      //get indexWriter in append mode
+      IndexWriter tempWriter = getIndexWriter();
+
+      //add appropriate values to Document
+      //Field store is to display info on search, only want to return ID and Name
+      doc.add(new StringField("ItemID", itemID, Field.Store.YES));
+      doc.add(new StringField("ItemName", itemName, Field.Store.YES));
+      String searchable = itemID + "," + itemName + "," + itemDescription + "," + itemCategories;
+      doc.add(new StringField("search", searchable, Field.Store.NO));
+
+      tempWriter.addDocument(doc);
+    }
+
     public void rebuildIndexes() {
 
         Connection conn = null;
@@ -35,41 +80,70 @@ public class Indexer {
         // create a connection to the database to retrieve Items from MySQL
 	try {
 	    conn = DbManager.getConnection(true);
+
 	} catch (SQLException ex) {
 	    System.out.println(ex);
 	}
 
+   try {
 
-	/*
-	 * Add your code here to retrieve Items using the connection
-	 * and add corresponding entries to your Lucene inverted indexes.
-         *
-         * You will have to use JDBC API to retrieve MySQL data from Java.
-         * Read our tutorial on JDBC if you do not know how to use JDBC.
-         *
-         * You will also have to use Lucene IndexWriter and Document
-         * classes to create an index and populate it with Items data.
-         * Read our tutorial on Lucene as well if you don't know how.
-         *
-         * As part of this development, you may want to add 
-         * new methods and create additional Java classes. 
-         * If you create new classes, make sure that
-         * the classes become part of "edu.ucla.cs.cs144" package
-         * and place your class source files at src/edu/ucla/cs/cs144/.
-	 * 
-	 */
+     initIndexWrite();
+
+     //init string ID, description, categories, name
+     String itemID, itemName, itemDescription, itemCategories = "";
+     Statement stmt = conn.createStatement();
+
+     ResultSet rs_item = stmt.executeQuery("SELECT ID, Name, Description FROM Items");
 
 
+     //create a hash map for categories to reduce query numbers
+     PreparedStatement categoryQuery = conn.prepareStatement("Select ItemID, Category from AssociateCategory ");
+     ResultSet rs_category = categoryQuery.executeQuery();
+
+     Map<String, String> map = new HashMap<String, String>();
+
+     while(rs_category.next()){
+       String key = rs_category.getString("ItemID");
+       String value = rs_category.getString("Category");
+       if(map.get(key) != null){
+         String category = map.get(key);
+         category += "," + value;
+         map.put(key, category);
+       }
+       else{
+         map.put(key, value);
+       }
+     }
+
+
+
+   while (rs_item.next()) {
+       itemID = rs_item.getString("ID");
+       itemName = rs_item.getString("Name");
+       itemDescription = rs_item.getString("Description");
+
+       itemCategories = map.get(itemID);
+       //System.out.println(itemID);
+       createIndex(itemID, itemName, itemDescription, itemCategories);
+
+     }
+     //close indexWriter
+     finishIndexWriter();
+   } catch (SQLException ex) {
+       System.out.println(ex);
+   }catch (IOException ex) {
+    System.out.println(ex);
+  }
         // close the database connection
 	try {
 	    conn.close();
 	} catch (SQLException ex) {
 	    System.out.println(ex);
 	}
-    }    
+    }
 
     public static void main(String args[]) {
         Indexer idx = new Indexer();
         idx.rebuildIndexes();
-    }   
+    }
 }

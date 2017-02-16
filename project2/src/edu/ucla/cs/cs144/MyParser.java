@@ -220,6 +220,8 @@ class MyParser {
 
     private static void parseItem (Element item) throws IOException {
         String itemID = item.getAttribute("ItemID");
+	Element name = getElementByTagNameNR(item, "Name");
+	String nameText = getElementText(name);
         String currently = strip(getElementTextByTagNameNR(item, "Currently"));
         String buyPrice = strip(getElementTextByTagNameNR(item, "Buy_Price"));
         String firstBid = strip(getElementTextByTagNameNR(item, "First_Bid"));
@@ -250,7 +252,7 @@ class MyParser {
         String description = getElementTextByTagNameNR(item, "Description");
         if (description.length() > 4000)
             description = description.substring(0, 4000);
-        writeRow(itemWriter, itemID, currently, buyPrice, firstBid, numBids, locationID, started, ends, userID, description);
+        writeRow(itemWriter, itemID, nameText, currently, buyPrice, firstBid, numBids, locationID, started, ends, userID, description);
     }
 
     private static void parseCategory (Element item) throws IOException {
