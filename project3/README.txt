@@ -1,6 +1,1 @@
-This example contains a simple utility class to simplify opening database
-connections in Java applications, such as the one you will write to build
-your Lucene index. 
-
-To build and run the sample code, use the "run" ant target inside
-the directory with build.xml by typing "ant run".
+A. We wanted to capture Name, Description, Categories, and Item ID for our Lucene index. In order to do so, we entered Name and ItemID as the stored values in the indexing and we have the indexes searchable over the concatanated string of Name, Description, Categories. 

@@ -67,7 +67,7 @@ private IndexWriter indexWriter = null;
       //Field store is to display info on search, only want to return ID and Name
       doc.add(new StringField("ItemID", itemID, Field.Store.YES));
       doc.add(new StringField("ItemName", itemName, Field.Store.YES));
-      String searchable = itemID + "," + itemName + "," + itemDescription + "," + itemCategories;
+      String searchable = itemName + "," + itemDescription + "," + itemCategories;
       doc.add(new TextField("search", searchable, Field.Store.NO));
       tempWriter.addDocument(doc);
     }
