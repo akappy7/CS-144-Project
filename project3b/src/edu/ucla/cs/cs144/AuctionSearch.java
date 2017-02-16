@@ -49,12 +49,12 @@ public class AuctionSearch implements IAuctionSearch {
          * placed at src/edu/ucla/cs/cs144.
          *
          */
-				 private IndexSearcher searcher = null;
-    		 private QueryParser parser = null;
+		private IndexSearcher searcher = null;
+    		private QueryParser parser = null;
 
-				 public void initialize() throws IOException{
-					  //as found on lucene guide given in instructions
-					  searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(new File("/var/lib/lucene/index1"))));
+		public void initialize() throws IOException{
+		//as found on lucene guide given in instructions
+			searcher = new IndexSearcher(DirectoryReader.open(FSDirectory.open(new File("/var/lib/lucene/index1"))));
         		parser = new QueryParser("search", new StandardAnalyzer());
 				 }
 
