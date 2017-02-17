@@ -133,7 +133,7 @@ public class AuctionSearch implements IAuctionSearch {
 			if (parser == null | searcher == null)
 				initialize();
 			Query new_query = parser.parse(query);
-			TopDocs docs = searcher.search(new_query, spatialResults.size());
+			TopDocs docs = searcher.search(new_query, Integer.MAX_VALUE);
 			ScoreDoc[] hits = docs.scoreDocs;
 //			System.out.println("spatial: " + spatialResults.size());
 //			System.out.println("hits: " + hits.length);
