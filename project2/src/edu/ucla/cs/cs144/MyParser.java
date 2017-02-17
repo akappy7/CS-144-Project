@@ -303,7 +303,11 @@ class MyParser {
         else {
             locationID++;
             locationMap.put(locationKey, locationID);
-            writeRow(locationWriter, locationID.toString(), longitude, latitude, country, location);
+            // This is a temporary fix for empty field load into 0.
+            if (latitude == "" || longitude == "")
+                writeRow(locationWriter, locationID.toString(), "\\N", "\\N", country, location);
+            else
+                writeRow(locationWriter, locationID.toString(), longitude, latitude, country, location);
             return locationID;
         }
     }
