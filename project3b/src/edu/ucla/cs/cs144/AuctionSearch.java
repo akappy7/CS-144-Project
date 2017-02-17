@@ -166,8 +166,32 @@ public class AuctionSearch implements IAuctionSearch {
 	}
 
 	public String getXMLDataForItemId(String itemId) {
-		// TODO: Your code here!
-		return "";
+
+		//initialize string to return and connection to DB
+		Connection conn = null;
+		String xmlString = "";
+		try{
+			try {
+	    	conn = DbManager.getConnection(true);
+			} catch (SQLException ex) {
+	    	System.out.println(ex);
+			}
+			Statement stmt = conn.createStatement();
+
+			ResultSet result = stmt.executeQuery("Select * from Items where ID = " + itemId);
+
+			while (result.next()){
+				System.out.println("ID: " + result.getString("ID") + " | name: " + result.getString("Name"));
+
+				//TODO need to add stuff to create element in order to return xmlString
+				
+			}
+			return xmlString;
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+			return "";
+		}
+
 	}
 
 	public String echo(String message) {
