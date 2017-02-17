@@ -3,10 +3,7 @@ package edu.ucla.cs.cs144;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.text.SimpleDateFormat;
 
 import java.sql.Connection;
@@ -69,7 +66,8 @@ public class AuctionSearch implements IAuctionSearch {
 			return new SearchResult[0];
 		}
 		try{
-			initialize();
+			if (parser == null | searcher == null)
+				initialize();
 			int total_results = numResultsToSkip + numResultsToReturn;
 			Query new_query = parser.parse(query);
 			TopDocs docs = searcher.search(new_query, total_results);
@@ -101,7 +99,69 @@ public class AuctionSearch implements IAuctionSearch {
 
 	public SearchResult[] spatialSearch(String query, SearchRegion region,
 			int numResultsToSkip, int numResultsToReturn) {
-		// TODO: Your code here!
+		// check if no results need to be returned
+		if(numResultsToReturn <= 0){
+			return new SearchResult[0];
+		}
+		//not a valid entry for query
+		if(numResultsToSkip < 0){
+			return new SearchResult[0];
+		}
+		HashSet<String> spatialResults = new HashSet<>();
+
+		try {
+			Connection conn = DbManager.getConnection(true);
+			Statement stmt = conn.createStatement();
+			String sqlQuery = String.format("" +
+					"SELECT * FROM ItemLocation " +
+					"WHERE MBRContains(GeomFromText('Polygon((%f %f, %f %f, %f %f, %f %f, %f %f))'), Coord)",
+					region.getLx(), region.getLy(),
+					region.getLx(), region.getRy(),
+					region.getRx(), region.getRy(),
+					region.getRx(), region.getLy(),
+					region.getLx(), region.getLy());
+			System.out.println(sqlQuery);
+			ResultSet rs = stmt.executeQuery(sqlQuery);
+			while (rs.next())
+				spatialResults.add(rs.getString("ItemID"));
+			conn.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		try {
+			if (parser == null | searcher == null)
+				initialize();
+			Query new_query = parser.parse(query);
+			TopDocs docs = searcher.search(new_query, spatialResults.size());
+			ScoreDoc[] hits = docs.scoreDocs;
+//			System.out.println("spatial: " + spatialResults.size());
+//			System.out.println("hits: " + hits.length);
+
+			List<SearchResult> results = new LinkedList<>();
+			int skipped = 0;
+			int added = 0;
+			for (int i = 0; i < hits.length; i++) {
+				Document doc = searcher.doc(hits[i].doc);
+				if (spatialResults.contains(doc.get("ItemID"))) {
+					if (skipped < numResultsToSkip) {
+						skipped++;
+					}
+					else if (added < numResultsToReturn) {
+						results.add(new SearchResult(doc.get("ItemID"), doc.get("ItemName")));
+						added++;
+					}
+					else {
+						break;
+					}
+				}
+			}
+			return results.toArray(new SearchResult[results.size()]);
+
+		} catch (IOException | ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
 		return new SearchResult[0];
 	}
 

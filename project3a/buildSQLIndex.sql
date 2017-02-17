@@ -8,7 +8,7 @@ CREATE TABLE ItemLocation (
 ) ENGINE=MyISAM;
 
 INSERT INTO ItemLocation (ItemID, Coord)
-SELECT a.ID, POINT(b.Longitude, b.Latitude)
+SELECT a.ID, POINT(b.Latitude, b.Longitude)
 FROM Items as a, Location as b
 WHERE a.LocationID = b.ID AND b.Longitude IS NOT NULL AND b.Latitude IS NOT NULL;
 
