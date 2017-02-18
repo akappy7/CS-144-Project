@@ -120,7 +120,7 @@ public class AuctionSearch implements IAuctionSearch {
 					region.getRx(), region.getRy(),
 					region.getRx(), region.getLy(),
 					region.getLx(), region.getLy());
-			System.out.println(sqlQuery);
+//			System.out.println(sqlQuery);
 			ResultSet rs = stmt.executeQuery(sqlQuery);
 			while (rs.next())
 				spatialResults.add(rs.getString("ItemID"));
@@ -169,7 +169,7 @@ public class AuctionSearch implements IAuctionSearch {
 
 		//initialize string to return and connection to DB
 		Connection conn = null;
-		String xmlString = "";
+		StringBuilder xmlString = new StringBuilder();
 		try{
 			try {
 	    	conn = DbManager.getConnection(true);
@@ -181,15 +181,15 @@ public class AuctionSearch implements IAuctionSearch {
 			ResultSet result = stmt.executeQuery("Select * from Items where ID = " + itemId);
 
 			while (result.next()){
-				System.out.println("ID: " + result.getString("ID") + " | name: " + result.getString("Name"));
+//				System.out.println("ID: " + result.getString("ID") + " | name: " + result.getString("Name"));
 
 				//Create xml structure
 
-				xmlString += "<Item>\n";
-				xmlString += "<Item ItemID=\"" + result.getString("ID")+ "\">\n";
+				xmlString.append("<Item>\n");
+				xmlString.append("<Item ItemID=\"").append(result.getString("ID")).append("\">\n");
 				String nameCheck = result.getString("Name");
 				nameCheck = checkEscapeChars(nameCheck);
-				xmlString += "<Name>" +  nameCheck + "</Name>\n";
+				xmlString.append("<Name>").append(nameCheck).append("</Name>\n");
 
 				//Category for item
 				Statement categoryStmt = conn.createStatement();
@@ -198,16 +198,17 @@ public class AuctionSearch implements IAuctionSearch {
 				while(categoryResult.next()){
 					String categoryCheck = categoryResult.getString("Category");
 					categoryCheck = checkEscapeChars(categoryCheck);
-					xmlString +="<Category>" + categoryCheck + "</Category>\n";
+					xmlString.append("<Category>").append(categoryCheck).append("</Category>\n");
 				}
-				xmlString +="<Currently>$" + result.getString("Currently") + "</Currently>\n";
-				xmlString += "<First_Bid>$" + result.getString("FirstBid") + "</First_Bid>\n";
-				xmlString += "<Number_of_Bids>" + result.getString("NumberBids") + "</Number_of_Bids>\n";
+
+				xmlString.append("<Currently>$").append(result.getString("Currently")).append("</Currently>\n");
+				xmlString.append("<First_Bid>$").append(result.getString("FirstBid")).append("</First_Bid>\n");
+				xmlString.append("<Number_of_Bids>").append(result.getString("NumberBids")).append("</Number_of_Bids>\n");
 				if(result.getString("NumberBids").equals("0")){
-					xmlString +="<Bids />\n";
+					xmlString.append("<Bids />\n");
 				}//no Bids
 				else{
-					xmlString +="<Bids>\n";
+					xmlString.append("<Bids>\n");
 					//Bids for item
 					Statement bidStmt = conn.createStatement();
 					ResultSet bidResult = bidStmt.executeQuery("Select UserID, Time, Amount from Bids where ItemID = " + itemId);
@@ -216,10 +217,10 @@ public class AuctionSearch implements IAuctionSearch {
 						Statement bidder = conn.createStatement();
 						ResultSet bidderResult = bidder.executeQuery("Select ID, RatingBidder from User where ID = \"" + bidResult.getString("UserID") + "\"");
 
-						xmlString +="<Bid>\n";
+						xmlString.append("<Bid>\n");
 						bidderResult.first();
 
-						xmlString += "<Bidder Rating=\"" + bidderResult.getString("RatingBidder") + "\" UserID=\"" +  bidderResult.getString("ID") + "\">\n";
+						xmlString.append("<Bidder Rating=\"").append(bidderResult.getString("RatingBidder")).append("\" UserID=\"" +  bidderResult.getString("ID")).append("\">\n");
 						Statement locationStmt1 = conn.createStatement();
 						ResultSet locationResult = locationStmt1.executeQuery("Select LocationID from AssociateBidder where UserID = \"" + bidderResult.getString("ID") + "\"");
 						locationResult.first();
@@ -232,20 +233,20 @@ public class AuctionSearch implements IAuctionSearch {
 						String location = locationResult2.getString("Location");
 
 						if(!location.equals("")){
-							xmlString+="<Location>" + location + "</Location>\n";
+							xmlString.append("<Location>" ).append(location).append("</Location>\n");
 						}
 						if(!country.equals("")){
-							xmlString+="<Country>" + country + "</Country>\n";
+							xmlString.append("<Country>").append(country).append("</Country>\n");
 						}
-						xmlString+= "</Bidder>\n";
+						xmlString.append("</Bidder>\n");
 
-						xmlString+= "<Time>" + bidResult.getString("Time") + "</Time>\n";
-						xmlString+="<Amount>$" + bidResult.getString("Amount") + "</Amount>\n";
+						xmlString.append("<Time>").append(formatDate(bidResult.getString("Time"))).append("</Time>\n");
+						xmlString.append("<Amount>$").append(bidResult.getString("Amount")).append("</Amount>\n");
 
-						xmlString+="</Bid>\n";
+						xmlString.append("</Bid>\n");
 
 					}//bidResult while()
-					xmlString+="</Bids>\n";
+					xmlString.append("</Bids>\n");
 				}//else there are Bids
 
 				Statement locationStmt3 = conn.createStatement();
@@ -255,40 +256,41 @@ public class AuctionSearch implements IAuctionSearch {
 				String longitude = locationResult3.getString("Longitude");
 				String latitude = locationResult3.getString("Latitude");
 
-				xmlString+="<Location";
+				xmlString.append("<Location");
 				if(!latitude.equals("")){
-					xmlString+=" Latitude=\"" + latitude + "\"";
+					xmlString.append(" Latitude=\"").append(latitude).append("\"");
 				}
 				if(!longitude.equals("")){
-					xmlString+=" Longitude=\"" + longitude + "\"";
+					xmlString.append(" Longitude=\"").append(longitude).append("\"");
 				}
-				xmlString+=">";
-				xmlString+= locationResult3.getString("Location");
-				xmlString+="</Location>\n";
+				xmlString.append(">");
+				xmlString.append(locationResult3.getString("Location"));
+				xmlString.append("</Location>\n");
 
-				xmlString+= "<Country>" + locationResult3.getString("Country") + "</Country>\n";
+				xmlString.append("<Country>").append(locationResult3.getString("Country")).append("</Country>\n");
 
-				xmlString+= "<Started>"+ result.getString("Started") + "</Started>\n";
-				xmlString+= "<Ends>"+ result.getString("Ends") + "</Ends>\n";
+				xmlString.append("<Started>").append(formatDate(result.getString("Started"))).append("</Started>\n");
+				xmlString.append("<Ends>").append(formatDate(result.getString("Ends"))).append("</Ends>\n");
 
 				Statement seller = conn.createStatement();
 				ResultSet sellerResult = seller.executeQuery("Select ID, RatingSeller from User where ID = \"" + result.getString("Seller") + "\"");
 				sellerResult.first();
 
-				xmlString+= "<Seller Rating=\"" + sellerResult.getString("RatingSeller")  + "\" UserID=\""+ sellerResult.getString("ID") + "\" />\n";
+				xmlString.append("<Seller Rating=\"").append(sellerResult.getString("RatingSeller")).append("\" UserID=\"").append(sellerResult.getString("ID")).append("\" />\n");
 
 				String description = result.getString("Description");
 				description = checkEscapeChars(description);
-				xmlString+= "<Description>" + description + "</Description>\n";
+				xmlString.append("<Description>").append(description).append("</Description>\n");
 			}
-			return xmlString;
+			return xmlString.toString();
 		}catch(Exception e){
 			System.out.println(e.getMessage());
 			return "";
 		}
 
 	}
-	public String checkEscapeChars(String string1){
+
+	private String checkEscapeChars(String string1){
 		string1 = string1.replaceAll("<", "&lt;");
 		string1 = string1.replaceAll(">", "&gt;");
 		string1 = string1.replaceAll("\"", "&quot;");
@@ -296,6 +298,19 @@ public class AuctionSearch implements IAuctionSearch {
 		string1 = string1.replaceAll("&", "&amp;");
 		return string1;
 	}
+
+	private String formatDate (String dateString) {
+		SimpleDateFormat mdy = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+		SimpleDateFormat ymd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			Date date = ymd.parse(dateString);
+			return mdy.format(date);
+		} catch (java.text.ParseException e) {
+			e.printStackTrace();
+			return "Ill Formatted Timestamp.";
+		}
+	}
+
 	public String echo(String message) {
 		return message;
 	}
