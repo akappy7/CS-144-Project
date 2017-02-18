@@ -281,6 +281,8 @@ public class AuctionSearch implements IAuctionSearch {
 				String description = result.getString("Description");
 				description = checkEscapeChars(description);
 				xmlString.append("<Description>").append(description).append("</Description>\n");
+				xmlString.append("</Item>\n");
+				xmlString.append("</Item>\n");
 			}
 			return xmlString.toString();
 		}catch(Exception e){
