@@ -203,6 +203,7 @@ public class AuctionSearch implements IAuctionSearch {
 				xmlString.append("<Currently>$").append(result.getString("Currently")).append("</Currently>\n");
 				xmlString.append("<First_Bid>$").append(result.getString("FirstBid")).append("</First_Bid>\n");
 				xmlString.append("<Number_of_Bids>").append(result.getString("NumberBids")).append("</Number_of_Bids>\n");
+
 				if(result.getString("NumberBids").equals("0")){
 					xmlString.append("<Bids />\n");
 				}//no Bids
@@ -256,10 +257,10 @@ public class AuctionSearch implements IAuctionSearch {
 				String latitude = locationResult3.getString("Latitude");
 
 				xmlString.append("<Location");
-				if(!latitude.equals("")){
+				if(latitude != null){
 					xmlString.append(" Latitude=\"").append(latitude).append("\"");
 				}
-				if(!longitude.equals("")){
+				if(longitude != null){
 					xmlString.append(" Longitude=\"").append(longitude).append("\"");
 				}
 				xmlString.append(">");
