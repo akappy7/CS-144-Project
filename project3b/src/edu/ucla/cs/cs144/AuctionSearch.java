@@ -185,7 +185,6 @@ public class AuctionSearch implements IAuctionSearch {
 
 				//Create xml structure
 
-				xmlString.append("<Item>\n");
 				xmlString.append("<Item ItemID=\"").append(result.getString("ID")).append("\">\n");
 				String nameCheck = result.getString("Name");
 				nameCheck = checkEscapeChars(nameCheck);
@@ -281,7 +280,6 @@ public class AuctionSearch implements IAuctionSearch {
 				String description = result.getString("Description");
 				description = checkEscapeChars(description);
 				xmlString.append("<Description>").append(description).append("</Description>\n");
-				xmlString.append("</Item>\n");
 				xmlString.append("</Item>\n");
 			}
 			return xmlString.toString();
