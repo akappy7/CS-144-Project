@@ -10,7 +10,7 @@
         <br>
       <form>
         Search: <input type="text" id="Search" value="Suggestion"><br>
-                    <input type="button" id="Submit" value="Submit">
+                    <input type="button" id="Submit" value="Submit" onclick="sendAjaxRequest()">
       </form>
       <div id="response" >
       </div>

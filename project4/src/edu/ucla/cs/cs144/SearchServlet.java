@@ -14,8 +14,9 @@ public class SearchServlet extends HttpServlet implements Servlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
       String item=null;
-      if(request.getParameter("search") != null ){
-        item = "User requested: " + request.getParameter("search");
+
+      if(request.getParameter("param") != null ){
+        item = "User requested: " + request.getParameter("param");
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(item);
