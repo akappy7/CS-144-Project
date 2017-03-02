@@ -8,11 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SearchServlet extends HttpServlet implements Servlet {
-       
+
     public SearchServlet() {}
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        // your codes here
+          String pageTitle = "Search Main";
+          request.setAttribute("title", pageTitle);
+          request.getRequestDispatcher("/search.jsp").forward(request, response);
     }
 }
