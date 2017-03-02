@@ -1,18 +1,23 @@
 <html>
   <script src="http://code.jquery.com/jquery-latest.js">  </script>
-  <script src="ajax_search.js" type="text/javascript"></script>
+  <script src="js/ajax_search.js" type="text/javascript"></script>
+  <link rel="stylesheet" type="text/css" href="css/main.css">
   <head>
     <title><%= request.getAttribute("title") %></title>
   </head>
   <body>
-      Ready for searching!
+    <br>
+      <h1> Ebay Class Website </h1>
       <br>
-        <br>
+      <div class = "align">
+        <h2> Begin Search </h2>
+      <br>
       <form>
-        Search: <input type="text" id="Search" value="Suggestion"><br>
-                    <input type="button" id="Submit" value="Submit" onclick="sendAjaxRequest()">
+        Search: <input class="center" type="text" id="Search" value="">
+                    <input type="button" id="Submit" value="Submit" onclick="newSearchFunction()">
       </form>
-      <div id="response" >
+      <div id=result>
+      </div>
       </div>
     </body>
 </html>

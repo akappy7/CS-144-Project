@@ -1,0 +1,11 @@
+body {
+    background-color: lightblue;
+    border: 10px solid yellow;
+}
+
+.align {
+    padding-left: 1cm;
+}
+h1{
+    text-align: center;
+}
