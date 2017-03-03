@@ -8,6 +8,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class ProxyServlet extends HttpServlet implements Servlet {
 
     public ProxyServlet() {}
@@ -15,19 +19,18 @@ public class ProxyServlet extends HttpServlet implements Servlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         String query = request.getParameter("query");
-        String url = "http://google.com/complete/search?output=toolbar&q=" + query;
+        String url1 = "http://google.com/complete/search?output=toolbar&q=" + query;
 
-        URL url = new URL(url);
+        URL url = new URL(url1);
         HttpURLConnection c1 = (HttpURLConnection) url.openConnection();
 
         // optional default is GET
 		    c1.setRequestMethod("GET");
-		    //add request header
-		    c1.setRequestProperty("User-Agent", USER_AGENT);
+
         if (c1.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 BufferedReader br1 = new BufferedReader(new InputStreamReader(c1.getInputStream()));
-                String line;
-                String total;
+                String line="";
+                String total="";
 
                 while ((line = br1.readLine()) != null) {
                     total += line;
