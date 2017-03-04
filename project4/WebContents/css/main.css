@@ -5,6 +5,9 @@ body {
 .align {
     padding-left: 1cm;
 }
+.result{
+  padding-left: 10cm;
+}
 h1 {
     text-align: center;
 }

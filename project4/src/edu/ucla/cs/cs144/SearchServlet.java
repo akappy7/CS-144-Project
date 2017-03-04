@@ -17,25 +17,35 @@ public class SearchServlet extends HttpServlet implements Servlet {
       int toSkip = 0;
       if(request.getParameter("query") != null ){
         item = request.getParameter("query");
-        toSkip =  Integer.parseInt(request.getParameter("skip"));
+        toSkip =  Integer.parseInt(request.getParameter("resultSkip"));
         SearchResult[] result = AuctionSearch.basicSearch(item, toSkip, 20);
 
         if (result.length == 0){
           String pageTitle = "Search Main";
-          String notif = "No results found for query: " + item;
-          request.setAttribute("itemList", notif);
-          request.getRequestDispatcher("/noResult.jsp").forward(request, response);
+          request.setAttribute("title", pageTitle);
+          request.setAttribute("itemList", result);
+          request.setAttribute("toSkip", toSkip);
+          request.setAttribute("flag", 1);
+          request.getRequestDispatcher("./search.jsp").forward(request, response);
         }
         else{
           String pageTitle = "Search Main";
+          request.setAttribute("query", item);
+          request.setAttribute("title", pageTitle);
+          request.setAttribute("flag", 1);
+          request.setAttribute("toSkip", toSkip);
           request.setAttribute("itemList", result);
-          request.getRequestDispatcher("/searchResult.jsp").forward(request, response);
+          request.getRequestDispatcher("./search.jsp").forward(request, response);
         }
       }
       else{
           String pageTitle = "Search Main";
+          SearchResult[] result = AuctionSearch.basicSearch(item, toSkip, 0);
           request.setAttribute("title", pageTitle);
-          request.getRequestDispatcher("/search.jsp").forward(request, response);
+          request.setAttribute("flag", 0);
+          request.setAttribute("toSkip", toSkip);
+          request.setAttribute("itemList", result);
+          request.getRequestDispatcher("./search.jsp").forward(request, response);
         }
     }
 }
