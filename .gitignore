@@ -5,3 +5,5 @@
 *.DS_Store
 *.edges
 */output/*
+*.log
+*/metastore_db/*
